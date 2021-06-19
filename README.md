@@ -1,4 +1,4 @@
-## Get started ##
+# Get started #
 Get started by going to www.rustup.rs , copy the link and run it from terminal in your home directory.
 
 Follow instructions (stable version, press 1 and enter), then run source $HOME/.cargo/env
@@ -16,7 +16,7 @@ To compile a release build without debug symbols, cargo build --release
 To run an executable, just run ./<executable>
 
 
-# TIPS #
+## TIPS ##
 To reduce binary size, run strip <executable> . This will remove all symbols from the object file reducing it's size
 
 If you are using vscode. install extension rust-analyzer (and accept the language package it asks you to install together with it)
