@@ -3,19 +3,26 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::time::Duration;
 
-pub fn main() {
-    let sdl = sdl2::init(); //.unwrap() <- unwrap shows the error message if any, we create our own handling below
+mod test; // "include" mod short for module
 
+fn generic_function<Type1>(value: Type1) -> Type1 {
+    return value;
+}
+
+fn main() -> Result<(), String> { // -> return type from main with templated arguments () means "nothing"
+    let sdl = sdl2::init(); //.unwrap() <- unwrap shows the error message if any, we create our own handling below
+    println!("{}", test::other_function()); // function from test.rs
+    println!("{}", generic_function(32));
     // Custom response handler. Takes result stored in sdl and matches it with Ok/Err (default returns in rust). Then stores this in sdl_context
     let sdl_context = match sdl {
         Ok(result) => result,
         Err(message) => { 
             println!("{}", message); 
-            return; 
+            return Ok(()); // Has to have "Ok(()) if main return-type is not void. Means return empty Ok... "
         }
     };
 
-    let video_subsystem = sdl_context.video().unwrap();
+    let video_subsystem = sdl_context.video()?; // ? means it sees inside the "ok". if not OK it will return the error type
 
     let window = video_subsystem.window("rust-sdl2 demo", 800, 600)
         .position_centered()
@@ -47,4 +54,5 @@ pub fn main() {
         canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
+    Ok(()) // No ; needed because ; "eats" the value and nothing is returned. We need to have a value due to main needing a return type.
 }

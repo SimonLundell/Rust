@@ -19,3 +19,5 @@ To run an executable, just run ./<executable>
 To reduce binary size, run strip <executable> . This will remove all symbols from the object file reducing it's size
 
 If you are using vscode. install extension rust-analyzer (and accept the language package it asks you to install together with it)
+
+To generate documents for your project, dependencies etc. run "cargo doc" . Output stored in project/target. Open docs with "cargo doc --open"
