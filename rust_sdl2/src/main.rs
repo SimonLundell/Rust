@@ -9,10 +9,21 @@ fn generic_function<Type1>(value: Type1) -> Type1 {
     return value;
 }
 
+fn generic_function2<'t, Type2>(value: &'t Type2) -> &'t Type2 { // 't is referencing the lifetime of the "borrowed object" we pass into the function
+    return value;
+}
+
 fn main() -> Result<(), String> { // -> return type from main with templated arguments () means "nothing"
     let sdl = sdl2::init(); //.unwrap() <- unwrap shows the error message if any, we create our own handling below
     println!("{}", test::other_function()); // function from test.rs
-    println!("{}", generic_function(32));
+    let testval: i32 = 32;
+    println!("{}", generic_function(testval));
+
+    let r:&i32 = &testval;
+    println!("{}", generic_function2(r));
+    
+    let vec = vec![1 as i8,2,3,4]; // as i8 makes the compiler deduce full vector should be i8 () has to be same type)
+    
     // Custom response handler. Takes result stored in sdl and matches it with Ok/Err (default returns in rust). Then stores this in sdl_context
     let sdl_context = match sdl {
         Ok(result) => result,
