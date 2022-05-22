@@ -1,1 +1,1 @@
-/home/simon/Rust/rust_starter_project/target/debug/rust_starter_project: /home/simon/Rust/rust_starter_project/src/main.rs
+/home/simon/git-repos/Rust/rust_starter_project/target/debug/rust_starter_project: /home/simon/git-repos/Rust/rust_starter_project/src/main.rs /home/simon/git-repos/Rust/rust_starter_project/src/strings.rs
