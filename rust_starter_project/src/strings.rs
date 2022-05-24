@@ -25,4 +25,13 @@ pub fn run()
     {
         println!("{}", word)
     }
+
+    // Create string with capacity
+    let mut s = String::with_capacity(10);
+    s.push('a');
+    s.push('b');
+
+    // testcase, will show nothing if true
+    assert_eq!(s.len(),2);
+    println!("{}", s)
 }
