@@ -11,4 +11,20 @@ pub fn run()
 
     let slice: &[i32] = &numbers[0..2]; // & so it can reference numbers and return correct slice
     println!("Slice is {:?}", slice);
+
+    numbers.push(6);
+    numbers.push(7);
+    numbers.pop();
+    println!("{:?}", numbers);
+
+    for x in numbers.iter()
+    {
+        println!("{}", x+100);
+    }
+
+    for i in numbers.iter_mut()
+    {
+        *i *= 2; // Need to de-reference the iterator (pointer)
+    }
+    println!("{:?}", numbers);
 }
