@@ -1,6 +1,6 @@
-//mod strings;
-//mod tuples;
-//mod arrays;
+// mod strings;
+// mod tuples;
+// mod arrays;
 // mod vectors;
 // mod conditionals;
 // mod loops;
