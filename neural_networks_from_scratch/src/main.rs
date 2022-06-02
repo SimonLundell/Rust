@@ -1,8 +1,38 @@
+use rand::prelude::*;
+use rand_distr::StandardNormal;
+
 mod algebra;
 
+pub struct LayerDense
+{
+    val: Vec<Vec<f64>>
+}
+
+impl LayerDense
+{
+    fn new(n_inputs: i32, n_neurons: i32) -> LayerDense
+    {
+        let mut ret_layer = LayerDense{val: vec![]};
+        let mut temp_v = vec![];
+        for _i in 0..n_neurons
+        {
+            for _j in 0..n_inputs
+            {
+                let rng: f64 = thread_rng().sample(StandardNormal);
+                temp_v.push(rng * 0.1);
+            }
+            ret_layer.val.push(temp_v.clone());
+            temp_v.clear();
+        }
+    return ret_layer;
+    }
+}
+
 fn main() {
+    let test: LayerDense = LayerDense::new(4, 3);
+    println!("{:?}", test.val);
     // Sample first neuron
-    let inputs = vec![vec![1.0 as f64, 2.0, 3.0, 2.5],
+    let x = vec![vec![1.0 as f64, 2.0, 3.0, 2.5],
                         vec![2.0 as f64, 5.0, -1.0, 2.0],
                         vec![-1.5 as f64, 2.7, 3.3, -0.8]]; // Input from a neuron in a layer earlier
 
@@ -22,7 +52,7 @@ fn main() {
     let biases2 = vec![-1.0 as f64, 2.0, -0.5];
 
     // Perform dot product, important to have weights first
-    let mut layer1_outputs = algebra::matrix_dot(&inputs, &weights);
+    let mut layer1_outputs = algebra::matrix_dot(&x, &weights);
 
     // Perform list addition (element by element addition)
     for i in 0..layer1_outputs.len()
