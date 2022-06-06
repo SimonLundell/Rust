@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub fn matrix_dot(m1: &Vec<Vec<f64>>, m2: &Vec<Vec<f64>>) -> Vec<Vec<f64>>
 {
     let mut ret = vec![];
@@ -18,7 +19,7 @@ pub fn matrix_dot(m1: &Vec<Vec<f64>>, m2: &Vec<Vec<f64>>) -> Vec<Vec<f64>>
     return ret;
 }
 
-
+#[allow(dead_code)]
 pub fn matrix_transpose(m1: Vec<Vec<f64>>) -> Vec<Vec<f64>>
 {
     let mut ret = vec![];
@@ -36,6 +37,7 @@ pub fn matrix_transpose(m1: Vec<Vec<f64>>) -> Vec<Vec<f64>>
     return ret;
 }
 
+#[allow(dead_code)]
 pub fn vector_dot(v1: &Vec<f64>, v2: &Vec<f64>) -> f64
 {
     let mut layer_outputs = 0.0;
@@ -48,6 +50,7 @@ pub fn vector_dot(v1: &Vec<f64>, v2: &Vec<f64>) -> f64
     return layer_outputs;
 }
 
+#[allow(dead_code)]
 pub fn vector_add(v1: &Vec<f64>, v2: &Vec<f64>) -> Vec<f64>
 {
     let mut ret = vec![0.0 as f64; v1.len()];
@@ -59,11 +62,13 @@ pub fn vector_add(v1: &Vec<f64>, v2: &Vec<f64>) -> Vec<f64>
     return ret;
 }
 
+#[allow(dead_code)]
 pub fn extract_row(m: &Vec<Vec<f64>>, idx: usize) -> Vec<f64>
 {
     return m[idx].clone();
 }
 
+#[allow(dead_code)]
 pub fn extract_column(m: &Vec<Vec<f64>>, idx: usize) -> Vec<f64>
 {
     let mut ret_v = vec![];
