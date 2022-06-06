@@ -2,8 +2,9 @@ mod algebra;
 mod layer_dense;
 
 fn main() {
-    let test: layer_dense::LayerDense = layer_dense::LayerDense::new(4, 3);
-    println!("{:?}", test.get_val());
+    let test: layer_dense::LayerDense = layer_dense::LayerDense::new(4, 4);
+    println!("{:?}", test.get_weights());
+    println!("{:?}", test.get_biases());
     // Sample first neuron
     let x = vec![vec![1.0 as f64, 2.0, 3.0, 2.5],
                         vec![2.0 as f64, 5.0, -1.0, 2.0],
