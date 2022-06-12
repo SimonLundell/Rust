@@ -38,6 +38,19 @@ pub fn matrix_transpose(m1: Vec<Vec<f64>>) -> Vec<Vec<f64>>
 }
 
 #[allow(dead_code)]
+pub fn matrix_add(m1: &Vec<Vec<f64>>, m2: &Vec<Vec<f64>>) -> Vec<Vec<f64>>
+{
+    let mut ret = vec![vec![0.0 as f64; m1[0].len()]; m1.len()];
+
+    for i in 0..ret.len()
+    {
+        ret[i] = vector_add(&m1[i], &m2[i]);
+    }
+
+    return ret;
+}
+
+#[allow(dead_code)]
 pub fn vector_dot(v1: &Vec<f64>, v2: &Vec<f64>) -> f64
 {
     let mut layer_outputs = 0.0;

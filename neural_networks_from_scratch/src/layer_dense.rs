@@ -27,12 +27,7 @@ impl LayerDense
 
     pub fn forward(&mut self, inputs: &Vec<Vec<f64>>)
     {
-        self.outputs = linalg::matrix_dot(&inputs, &self.weights);
-
-        for i in 0..self.outputs.len()
-        {
-            self.outputs[i] = linalg::vector_add(&self.outputs[i], &self.biases[i]);
-        }
+        self.outputs = linalg::matrix_add(&(linalg::matrix_dot(&inputs, &self.weights)), &self.biases);
     }
 
     pub fn make_rng(n_inputs: i32, n_neurons: i32) -> Vec<Vec<f64>>
