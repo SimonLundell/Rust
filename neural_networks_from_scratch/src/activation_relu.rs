@@ -1,22 +1,21 @@
-pub struct Activation_ReLU
+pub struct ActivationReLU
 {
    pub outputs: Vec<f64>
 }
 
-impl Activation_ReLU
+impl ActivationReLU
 {
-    pub fn forward(&mut self, inputs: Vec<f64>)
+    pub fn forward(inputs: Vec<f64>) -> ActivationReLU
     {
+        let mut ret: Vec<f64> = vec![0.0; inputs.len()];
         for i in 0..inputs.len()
         {
             if inputs[i] > 0.0
             {
-                self.outputs.push(inputs[i]);
-            }
-            else
-            {
-                self.outputs.push(0.0);
+                ret[i] = inputs[i];
             }
         }
+
+        return ActivationReLU{outputs: ret};
     }
 }

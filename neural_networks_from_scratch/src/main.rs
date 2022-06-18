@@ -15,9 +15,7 @@ fn main() {
     // Passing previous layers output into next layer
     layer1.forward(&input);
     layer2.forward(&layer1.outputs);
-    println!("{:?}", layer2.outputs);
 
-    let mut act: activation_relu::Activation_ReLU = activation_relu::Activation_ReLU{outputs:vec![]};
-    act.forward(vec![-1.0 as f64, 1.0, 2.0, 3.0, -1.0]);
+    let act: activation_relu::ActivationReLU = activation_relu::ActivationReLU::forward(vec![-1.0 as f64, 1.0, 2.0, 3.0, -1.0]);
     println!("{:?}", act.outputs);
 }
