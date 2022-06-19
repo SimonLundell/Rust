@@ -18,11 +18,9 @@ impl LayerDense
     // Equally big biases (all 0)
     pub fn new(n_inputs: i32, n_neurons: i32) -> LayerDense
     {
-        let ret_layer = LayerDense{weights: LayerDense::make_rng(n_inputs, n_neurons), 
+        return LayerDense{weights: LayerDense::make_rng(n_inputs, n_neurons), 
                                     biases: vec![vec![0.0 as f64; n_neurons as usize]; n_inputs as usize],
                                     outputs: vec![]};
-        
-        return ret_layer;
     }
 
     pub fn forward(&mut self, inputs: &Vec<Vec<f64>>)

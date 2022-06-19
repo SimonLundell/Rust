@@ -76,6 +76,18 @@ pub fn vector_add(v1: &Vec<f64>, v2: &Vec<f64>) -> Vec<f64>
 }
 
 #[allow(dead_code)]
+pub fn vector_mult(v1: &Vec<f64>, val: f64) -> Vec<f64>
+{
+    let mut ret = vec![0.0 as f64; v1.len()];
+    for i in 0..ret.len()
+    {
+        ret[i] += v1[i] * val;
+    }
+
+    return ret;
+}
+
+#[allow(dead_code)]
 pub fn extract_row(m: &Vec<Vec<f64>>, idx: usize) -> Vec<f64>
 {
     return m[idx].clone();
