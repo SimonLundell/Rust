@@ -15,7 +15,7 @@ pub fn matrix_dot(m1: &Vec<Vec<f64>>, m2: &Vec<Vec<f64>>) -> Vec<Vec<f64>>
         }
         ret.push(row_result);
     }
-
+    println!("Matrix DOT OK!");
     return ret;
 }
 
@@ -41,7 +41,7 @@ pub fn matrix_transpose(m1: Vec<Vec<f64>>) -> Vec<Vec<f64>>
 pub fn matrix_add(m1: &Vec<Vec<f64>>, m2: &Vec<Vec<f64>>) -> Vec<Vec<f64>>
 {
     let mut ret = vec![vec![0.0 as f64; m1[0].len()]; m1.len()];
-
+    
     for i in 0..ret.len()
     {
         ret[i] = vector_add(&m1[i], &m2[i]);

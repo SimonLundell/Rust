@@ -54,13 +54,13 @@ impl SpiralData
         return ret;
     }
 
-    pub fn get_x(&self) -> &Vec<Vec<f64>>
+    pub fn get_x(&self) -> Vec<Vec<f64>>
     {
-        return &self.x;
+        return self.x.clone();
     }
     
-    pub fn get_y(&self) -> &Vec<i8>
+    pub fn get_y(&self) -> Vec<i8>
     {
-        return &self.y;
+        return self.y.clone();
     }
 }

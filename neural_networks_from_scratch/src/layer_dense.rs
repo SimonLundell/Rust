@@ -25,7 +25,12 @@ impl LayerDense
 
     pub fn forward(&mut self, inputs: &Vec<Vec<f64>>)
     {
-        self.outputs = linalg::matrix_add(&(linalg::matrix_dot(&inputs, &self.weights)), &self.biases);
+        let m_dot = linalg::matrix_dot(&inputs, &self.weights);
+
+        for i in 0..m_dot.len()
+        {
+            self.outputs.push(linalg::vector_add(&m_dot[i], &self.biases[0])); // Something is wrong here... how to account for biases in deeper layers?
+        }
     }
 
     pub fn make_rng(n_inputs: i32, n_neurons: i32) -> Vec<Vec<f64>>
