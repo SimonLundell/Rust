@@ -18,5 +18,5 @@ fn main() {
     dense2.forward(&activation1.outputs);
     let activation2: activation_softmax::ActivationSoftmax = activation_softmax::ActivationSoftmax::forward(dense2.outputs);
 
-    println!("{:?}", activation2.outputs[0]); // 300 outputs from activation 2. We will get a "perfect" 1/3 distribution per neuron prediction of the input 2 values.
+    println!("{:?}", activation2.outputs[1]); // 300 outputs from activation 2. We will get a "perfect" 1/3 distribution per neuron prediction of the input 2 values.
 }

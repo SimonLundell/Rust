@@ -9,6 +9,7 @@ impl ActivationSoftmax
     {
         let e = std::f64::consts::E;
         let reduced_inputs: Vec<Vec<f64>> = ActivationSoftmax::sub_max(&inputs);
+
         let mut output: Vec<Vec<f64>> = vec![vec![0.0 as f64; reduced_inputs[0].len()]; reduced_inputs.len()];
        
         for i in 0..output.len()
@@ -41,28 +42,17 @@ impl ActivationSoftmax
         
     fn sub_max(inputs: &Vec<Vec<f64>>) -> Vec<Vec<f64>>
     {
-        let maximums: Vec<f64> = ActivationSoftmax::get_max(&inputs);
         let mut ret: Vec<Vec<f64>> = vec![vec![0.0 as f64; inputs[0].len()]; inputs.len()];
 
         for i in 0..inputs.len()
         {
             for j in 0..inputs[i].len()
                 {
-                    ret[i][j] = inputs[i][j] - maximums[i];
+                    let max = inputs[i].iter().copied().fold(f64::NEG_INFINITY, f64::max);
+                    ret[i][j] = inputs[i][j] - max;
                 }
         }    
+
         return ret;
-    }
-
-    fn get_max(inputs: &Vec<Vec<f64>>) -> Vec<f64>
-    {
-        let mut maximums: Vec<f64> = vec![0.0 as f64; inputs.len()];
-
-        for i in 0..inputs.len()
-        {
-            maximums[i] = inputs[i].iter().copied().fold(f64::NEG_INFINITY, f64::max);
-        }
-
-        return maximums;
     }
 }
