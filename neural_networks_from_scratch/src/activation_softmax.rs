@@ -11,7 +11,6 @@ impl ActivationSoftmax
         let reduced_inputs: Vec<Vec<f64>> = ActivationSoftmax::sub_max(&inputs);
         let mut output: Vec<Vec<f64>> = vec![vec![0.0 as f64; reduced_inputs[0].len()]; reduced_inputs.len()];
        
-
         for i in 0..output.len()
         {
             for j in 0..output[i].len()
@@ -43,25 +42,25 @@ impl ActivationSoftmax
     fn sub_max(inputs: &Vec<Vec<f64>>) -> Vec<Vec<f64>>
     {
         let maximums: Vec<f64> = ActivationSoftmax::get_max(&inputs);
-        let mut ret_matrix: Vec<Vec<f64>> = vec![];
+        let mut ret: Vec<Vec<f64>> = vec![vec![0.0 as f64; inputs[0].len()]; inputs.len()];
+
         for i in 0..inputs.len()
         {
-            let mut temp_arr = vec![];
             for j in 0..inputs[i].len()
                 {
-                    temp_arr.push(inputs[i][j] - maximums[i]);
+                    ret[i][j] = inputs[i][j] - maximums[i];
                 }
-                ret_matrix.push(temp_arr);
         }    
-        return ret_matrix;
+        return ret;
     }
 
     fn get_max(inputs: &Vec<Vec<f64>>) -> Vec<f64>
     {
-        let mut maximums: Vec<f64> = vec![];
-        for arr in inputs
+        let mut maximums: Vec<f64> = vec![0.0 as f64; inputs.len()];
+
+        for i in 0..inputs.len()
         {
-            maximums.push(arr.iter().copied().fold(f64::NEG_INFINITY, f64::max));
+            maximums[i] = inputs[i].iter().copied().fold(f64::NEG_INFINITY, f64::max);
         }
 
         return maximums;
