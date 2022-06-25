@@ -8,35 +8,33 @@ impl ActivationSoftmax
     pub fn forward(inputs: Vec<Vec<f64>>) -> ActivationSoftmax
     {
         let e = std::f64::consts::E;
-        let mut output = vec![];
         let reduced_inputs: Vec<Vec<f64>> = ActivationSoftmax::sub_max(&inputs);
-
-        for arr in reduced_inputs
-        {
-            let mut temp_arr = vec![];
-            for val in arr
-            {
-                temp_arr.push(e.powf(val));
-            }
-            output.push(temp_arr); 
-        }
-
-        let mut norm_base: Vec<f64> = vec![];
-        let mut norm_values: Vec<Vec<f64>> = vec![];
-
-        for out in &output
-        {
-            norm_base.push(out.iter().sum());
-        }
+        let mut output: Vec<Vec<f64>> = vec![vec![0.0 as f64; reduced_inputs[0].len()]; reduced_inputs.len()];
+       
 
         for i in 0..output.len()
         {
-            let mut temp_arr = vec![];
             for j in 0..output[i].len()
             {
-                temp_arr.push(output[i][j]/norm_base[i])
+                output[i][j] = e.powf(reduced_inputs[i][j]);
             }
-            norm_values.push(temp_arr);
+        }
+
+        let mut norm_base: Vec<f64> = vec![0.0 as f64; output.len()];
+
+        for i in 0..output.len()
+        {
+            norm_base[i] = output[i].iter().sum();
+        }
+
+        let mut norm_values: Vec<Vec<f64>> = vec![vec![0.0 as f64; output[0].len()]; output.len()];
+
+        for i in 0..output.len()
+        {
+            for j in 0..output[i].len()
+            {
+                norm_values[i][j] = output[i][j] / norm_base[i];
+            }
         }
 
         return ActivationSoftmax{outputs: norm_values};
