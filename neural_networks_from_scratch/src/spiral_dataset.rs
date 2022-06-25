@@ -8,6 +8,7 @@ pub struct SpiralData
     pub y: Vec<i8>
 }
 
+#[allow(dead_code)]
 impl SpiralData
 {
     pub fn new(points: usize, classes: usize) -> SpiralData

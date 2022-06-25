@@ -15,7 +15,7 @@ pub fn matrix_dot(m1: &Vec<Vec<f64>>, m2: &Vec<Vec<f64>>) -> Vec<Vec<f64>>
         }
         ret.push(row_result);
     }
-    println!("Matrix DOT OK!");
+
     return ret;
 }
 

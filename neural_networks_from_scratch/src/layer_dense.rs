@@ -36,16 +36,15 @@ impl LayerDense
     pub fn make_rng(n_inputs: i32, n_neurons: i32) -> Vec<Vec<f64>>
     {
         let mut ret = vec![];
-        let mut temp_v = vec![];
         for _i in 0..n_inputs
         {
+            let mut temp_v = vec![];
             for _j in 0..n_neurons
             {
                 let rng: f64 = thread_rng().sample(StandardNormal);
                 temp_v.push(rng * 0.1);
             }
-            ret.push(temp_v.clone());
-            temp_v.clear();
+            ret.push(temp_v);
         }
         return ret;
     }
