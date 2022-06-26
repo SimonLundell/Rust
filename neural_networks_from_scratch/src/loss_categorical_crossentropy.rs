@@ -1,18 +1,16 @@
 pub struct LossCategoricalCrossentropy
-{
-    pub loss: f64
-}
+{}
 
 impl LossCategoricalCrossentropy
 {
-    pub fn calculate(output: Vec<Vec<f64>>, y: Vec<i8>) -> LossCategoricalCrossentropy
+    pub fn calculate(output: Vec<Vec<f64>>, y: Vec<i8>) -> f64
     {
         let sample_losses: Vec<f64> = LossCategoricalCrossentropy::forward(output, y);
         
         let sum: f64 = sample_losses.iter().sum();
         let data_loss: f64 = sum / sample_losses.len() as f64;
 
-        return LossCategoricalCrossentropy{loss: data_loss};
+        return data_loss;
     }
 
     fn forward(y_pred: Vec<Vec<f64>>, y_true: Vec<i8>) -> Vec<f64>
