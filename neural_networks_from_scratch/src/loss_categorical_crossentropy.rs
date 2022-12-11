@@ -17,7 +17,7 @@ impl LossCategoricalCrossentropy
     {
         let e = std::f64::consts::E;
         let samples = y_pred.len();
-        let y_pred_clipped = LossCategoricalCrossentropy::clip(y_pred, 1.0*e.powf(-7.0));
+        let y_pred_clipped = LossCategoricalCrossentropy::clip(y_pred, 1.0 * e.powf(-7.0), 1.0 - 1.0 * e.powf(-7.0));
         let mut correct_confidences = vec![0.0 as f64; samples];
 
         // Needs logic if y_true is onehot encoded
@@ -29,19 +29,19 @@ impl LossCategoricalCrossentropy
         return correct_confidences;
     }
 
-    fn clip(mut matrix: Vec<Vec<f64>>,value: f64) -> Vec<Vec<f64>>
+    fn clip(mut matrix: Vec<Vec<f64>>, low_value: f64, high_value: f64) -> Vec<Vec<f64>>
     {
         for i in 0..matrix.len()
         {
             for j in 0..matrix[i].len()
             {
-                if matrix[i][j] < value
+                if matrix[i][j] < low_value
                 {
-                    matrix[i][j] = value;
+                    matrix[i][j] = low_value;
                 }
-                else if matrix[i][j] > 1.0 - value
+                else if matrix[i][j] > high_value
                 {
-                    matrix[i][j] = 1.0 - value;
+                    matrix[i][j] = high_value;
                 }
             }
         }
