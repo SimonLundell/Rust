@@ -53,7 +53,7 @@ impl Game
         
         let head = (*self.snake.body.front().expect("Snake has no body")).clone();
 
-        if head.0 < 0 || head.0 > WINDOW_X / BLOCKS - 1 || head.1 < 0 || head.1 > WINDOW_Y / BLOCKS - 1
+        if head.0 < 0 || head.0 > WINDOW_X / BLOCKS - 1 || head.1 < 0 || head.1 > WINDOW_Y / BLOCKS - 1 || self.head_inside_body()
         {
             self.reset();
         }
@@ -99,6 +99,24 @@ impl Game
             _ => last_direction
             
         }
+    }
+
+    fn head_inside_body(&mut self) -> bool
+    {
+        let head = (*self.snake.body.front().expect("Snake has no body")).clone();
+        let mut snake_copy = (self.snake.body).clone();
+        snake_copy.pop_front();
+
+        let mut snake_iter = snake_copy.iter();
+        while let Some(val) = snake_iter.next()
+        {
+            if head == *val
+            {
+                return true;
+            }
+        };
+        
+        return false;
     }
 }
 
