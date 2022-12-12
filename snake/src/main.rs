@@ -10,6 +10,7 @@ use piston::event_loop::*;
 use piston::input::*;
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
+use rand::Rng;
 
 use std::collections::LinkedList;
 use std::iter::FromIterator;
@@ -59,6 +60,7 @@ impl Game
 
         if head.0 == self.candy.position.0 && head.1 == self.candy.position.1
         {
+            self.candy.randomize_position();
             let mut tail = (*self.snake.body.back().expect("Snake has no body")).clone();
         
             // Should be snake tail direction, now its a bit bugged
@@ -150,6 +152,17 @@ struct Candy
 
 impl Candy
 {
+    pub fn Candy() -> Candy
+    {
+        let mut rng = rand::thread_rng();
+        let mut pos = (0, 0);
+
+        pos.0 = rng.gen_range(0..24);
+        pos.1 = rng.gen_range(0..24);
+
+        return Candy{position: pos}
+    }
+
     fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs)
     {
         let BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
@@ -163,6 +176,15 @@ impl Candy
             graphics::rectangle(BLUE, square, transform, gl);
         })
     }
+
+    fn randomize_position(&mut self)
+    {
+        let mut rng = rand::thread_rng();
+
+        self.position.0 = rng.gen_range(0..24);
+        self.position.1 = rng.gen_range(0..24);
+    }
+
 }
 
 fn main() 
@@ -171,7 +193,7 @@ fn main()
 
     let mut window: GlutinWindow = WindowSettings::new("Snake Game", [WINDOW_X as f64, WINDOW_Y as f64]).graphics_api(opengl).exit_on_esc(true).build().unwrap();
 
-    let mut game = Game {gl: GlGraphics::new(opengl), snake: Snake {body: LinkedList::from_iter((vec![(0,0), (0,1)]).into_iter()), dir: Direction::Right }, candy: Candy{position: (4,4)} };
+    let mut game = Game {gl: GlGraphics::new(opengl), snake: Snake {body: LinkedList::from_iter((vec![(0,0), (0,1)]).into_iter()), dir: Direction::Right }, candy: Candy::Candy() };
 
     let mut events = Events::new(EventSettings::new()).ups(8);
     while let Some(e) = events.next(&mut window) 
