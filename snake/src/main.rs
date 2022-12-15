@@ -36,11 +36,11 @@ impl Game
 {
     fn render(&mut self, args: &RenderArgs)
     {
-        let GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
+        let green: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
 
         self.gl.draw(args.viewport(), |_c, gl|
         {
-            graphics::clear(GREEN, gl);
+            graphics::clear(green, gl);
         });
 
         self.snake.render(&mut self.gl, args);
@@ -53,7 +53,7 @@ impl Game
         
         let head = (*self.snake.body.front().expect("Snake has no body")).clone();
 
-        let head_in_body = self.check_coordinate(&head);
+        let head_in_body = self.check_coordinate(head);
 
         if head.0 < 0 || head.0 > WINDOW_X / BLOCKS - 1 || head.1 < 0 || head.1 > WINDOW_Y / BLOCKS - 1 || head_in_body
         {
@@ -62,10 +62,16 @@ impl Game
 
         if head.0 == self.candy.position.0 && head.1 == self.candy.position.1
         {
-            self.candy.randomize_position();
+            loop 
+            {
+                self.candy.randomize_position();
+                if !self.check_coordinate(self.candy.position)
+                {
+                    break;
+                }
+            }
             let mut tail = (*self.snake.body.back().expect("Snake has no body")).clone();
         
-            // Should be snake tail direction, now its a bit bugged
             match self.snake.dir
             {
                 Direction::Left => tail.0 -= 1,
@@ -103,7 +109,7 @@ impl Game
         }
     }
 
-    fn check_coordinate(&mut self, control_point: &(i32, i32)) -> bool
+    fn check_coordinate(&mut self, control_point: (i32, i32)) -> bool
     {
         let mut snake_copy = (self.snake.body).clone();
         snake_copy.pop_front();
@@ -111,7 +117,7 @@ impl Game
         let mut snake_iter = snake_copy.iter();
         while let Some(val) = snake_iter.next()
         {
-            if *control_point == *val
+            if control_point == *val
             {
                 return true;
             }
@@ -131,7 +137,7 @@ impl Snake
 {
     fn render(&self, gl: &mut GlGraphics, args: &RenderArgs)
     {
-        let RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
+        let red: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 
         let squares: Vec<graphics::types::Rectangle> = self.body.iter().map(|&(x, y)|
         {
@@ -142,7 +148,7 @@ impl Snake
         {
             let transform = _c.transform;
 
-            squares.into_iter().for_each(|square|graphics::rectangle(RED, square, transform, gl));
+            squares.into_iter().for_each(|square|graphics::rectangle(red, square, transform, gl));
         })
     }
 
@@ -171,7 +177,7 @@ struct Candy
 
 impl Candy
 {
-    pub fn Candy() -> Candy
+    pub fn candy() -> Candy
     {
         let mut rng = rand::thread_rng();
         let mut pos = (0, 0);
@@ -184,7 +190,7 @@ impl Candy
 
     fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs)
     {
-        let BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+        let blue: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
 
         let square: graphics::types::Rectangle = graphics::rectangle::square((self.position.0 * 20) as f64, (self.position.1 * 20) as f64, 20_f64);
         
@@ -192,7 +198,7 @@ impl Candy
         {
             let transform = _c.transform;
 
-            graphics::rectangle(BLUE, square, transform, gl);
+            graphics::rectangle(blue, square, transform, gl);
         })
     }
 
@@ -212,7 +218,7 @@ fn main()
 
     let mut window: GlutinWindow = WindowSettings::new("Snake Game", [WINDOW_X as f64, WINDOW_Y as f64]).graphics_api(opengl).exit_on_esc(true).build().unwrap();
 
-    let mut game = Game {gl: GlGraphics::new(opengl), snake: Snake {body: LinkedList::from_iter((vec![(0,0), (0,1)]).into_iter()), dir: Direction::Right }, candy: Candy::Candy() };
+    let mut game = Game {gl: GlGraphics::new(opengl), snake: Snake {body: LinkedList::from_iter((vec![(0,0), (0,1)]).into_iter()), dir: Direction::Right }, candy: Candy::candy() };
 
     let mut events = Events::new(EventSettings::new()).ups(8);
     while let Some(e) = events.next(&mut window) 
