@@ -70,13 +70,13 @@ impl event::EventHandler<ggez::GameError> for MainState {
         if ctx.keyboard.is_key_pressed(KeyCode::Left) {
             self.car.pos.x -= 1.0;
         }
-        else if ctx.keyboard.is_key_pressed(KeyCode::Right) {
+        if ctx.keyboard.is_key_pressed(KeyCode::Right) {
             self.car.pos.x += 1.0;
         }
-        else if ctx.keyboard.is_key_pressed(KeyCode::Up) {
+        if ctx.keyboard.is_key_pressed(KeyCode::Up) {
             self.car.pos.y -= 1.0;
         }
-        else if ctx.keyboard.is_key_pressed(KeyCode::Down) {
+        if ctx.keyboard.is_key_pressed(KeyCode::Down) {
             self.car.pos.y += 1.0;
         }
         Ok(())
