@@ -11,21 +11,28 @@ const WINDOW_H: f32 = 800.0;
 const CAR_W: f32 = 30.0;
 const CAR_H: f32 = 60.0;
 const START_POS: Point2<f32> = Point2{x: WINDOW_W / 2.0, y: WINDOW_H - (2.0 * CAR_H)};
+const ROAD_CENTER: [Point2<f32>; 2] = [Point2{x: WINDOW_W / 2.0, y: 0.0}, Point2{x: WINDOW_W / 2.0, y: WINDOW_H}];
+const ROAD_LEFT: [Point2<f32>; 2] = [Point2{x: WINDOW_W / 2.0 - CAR_W, y: 0.0}, Point2{x: WINDOW_W / 2.0 - CAR_W, y: WINDOW_H}];
+const ROAD_RIGHT: [Point2<f32>; 2] = [Point2{x: WINDOW_W / 2.0 + CAR_W, y: 0.0}, Point2{x: WINDOW_W / 2.0 + CAR_W, y: WINDOW_H}];
 
 struct Road {
     center: [Point2<f32>; 2],
-    // left: Vec<f32>,
-    // right: Vec<f32>,
+    left: [Point2<f32>; 2],
+    right: [Point2<f32>; 2],
 }
 
 impl Road {
-    fn new(center: [Point2<f32>; 2]) -> Road {
-        Road{center: center}
+    fn new(center: [Point2<f32>; 2], left: [Point2<f32>; 2], right: [Point2<f32>; 2]) -> Road {
+        Road{center: center, left: left, right: right}
     }
 
     fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
-        let line = Mesh::new_line(ctx, &self.center, 2.0, Color::WHITE)?;
-        graphics::Canvas::draw(canvas, &line, DrawParam::default());
+        let center_line_mesh = Mesh::new_line(ctx, &self.center, 2.0, Color::WHITE)?;
+        let left_line_mesh = Mesh::new_line(ctx, &self.left, 2.0, Color::YELLOW)?;
+        let right_line_mesh = Mesh::new_line(ctx, &self.right, 2.0, Color::YELLOW)?;
+        graphics::Canvas::draw(canvas, &center_line_mesh, DrawParam::default());
+        graphics::Canvas::draw(canvas, &left_line_mesh, DrawParam::default());
+        graphics::Canvas::draw(canvas, &right_line_mesh, DrawParam::default());
         Ok(())
     }
 }
@@ -58,7 +65,7 @@ struct MainState {
 impl MainState {
     fn new(ctx: &mut Context) -> GameResult<MainState> {
         let pos: Point2<f32> = START_POS;
-        let road = Road::new([Point2{x: WINDOW_W / 2.0, y: 0.0}, Point2{x: WINDOW_W / 2.0, y: WINDOW_H}]);
+        let road = Road::new(ROAD_CENTER, ROAD_LEFT, ROAD_RIGHT);
         let ego = Car::new(CAR_W, CAR_H, pos);
         let state = MainState{car: ego, road: road};
         Ok(state)
