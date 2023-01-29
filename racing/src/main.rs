@@ -46,6 +46,9 @@ impl Road {
 
         let line = Mesh::from_data(ctx, mb.build());
         let center_line_mesh = Mesh::new_line(ctx, &self.center, 2.0, Color::WHITE)?;
+        let rect = Rect::new(WINDOW_W / 2.0 - CAR_W * 1.5, 0.0, 2.0 * (CAR_W * 1.5), WINDOW_H);
+        let rect_mesh = Mesh::new_rectangle(ctx, graphics::DrawMode::fill(), rect, Color::BLACK)?;
+        graphics::Canvas::draw(canvas, &rect_mesh, DrawParam::default());
         graphics::Canvas::draw(canvas, &line, DrawParam::default());
         graphics::Canvas::draw(canvas, &center_line_mesh, DrawParam::default());
         Ok(())
@@ -77,7 +80,7 @@ impl Car {
         Ok(())
     }
 
-    pub fn get_speed(self) -> f32 {
+    pub fn get_speed(&self) -> f32 {
         self.speed
     }
 }
@@ -117,7 +120,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
                 self.car.speed = -1.25;
             }
         }
-        self.road.get_car_speed(self.car.speed);
+        self.road.get_car_speed(self.car.get_speed());
         Ok(())
     }
 
@@ -136,7 +139,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
 
 fn line_builder(seg_length: f32, spacing: f32, side: i8, speed: f32) -> Vec<[Point2<f32>; 2]> {
     let mut dashed_line = vec![];
-    let x = WINDOW_W / 2.0 + CAR_W * side as f32;
+    let x = WINDOW_W / 2.0 + CAR_W * 1.5 * side as f32;
     let mut y = speed;
 
     while y < WINDOW_H {
