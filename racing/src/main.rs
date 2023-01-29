@@ -1,6 +1,6 @@
 use ggez::event;
 use ggez::input::keyboard::{KeyCode};
-use ggez::graphics::{self, Canvas, DrawParam, Color, Quad, Rect, Mesh};
+use ggez::graphics::{self, Canvas, DrawParam, Color, Quad, Rect, Mesh, MeshBuilder};
 use ggez::{Context, GameResult};
 use ggez::conf::*;
 use mint::{Point2};
@@ -27,12 +27,24 @@ impl Road {
     }
 
     fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
+        let mb = &mut MeshBuilder::new();
+        let left_lines = line_builder(10.0, 5.0, -1);
+        let right_lines = line_builder(10.0, 5.0, 1);
+
+        if left_lines.len() == right_lines.len() {
+            for i in 0..left_lines.len() {
+                mb.line(&left_lines[i], 2.0, Color::YELLOW)?;
+                mb.line(&right_lines[i], 2.0, Color::YELLOW)?;
+            }
+        }
+        else {
+            println!("Not same amount of road-markings on left/right lane");
+        }
+
+        let line = Mesh::from_data(ctx, mb.build());
         let center_line_mesh = Mesh::new_line(ctx, &self.center, 2.0, Color::WHITE)?;
-        let left_line_mesh = Mesh::new_line(ctx, &self.left, 2.0, Color::YELLOW)?;
-        let right_line_mesh = Mesh::new_line(ctx, &self.right, 2.0, Color::YELLOW)?;
+        graphics::Canvas::draw(canvas, &line, DrawParam::default());
         graphics::Canvas::draw(canvas, &center_line_mesh, DrawParam::default());
-        graphics::Canvas::draw(canvas, &left_line_mesh, DrawParam::default());
-        graphics::Canvas::draw(canvas, &right_line_mesh, DrawParam::default());
         Ok(())
     }
 }
@@ -100,6 +112,19 @@ impl event::EventHandler<ggez::GameError> for MainState {
         Ok(())
     }
 
+}
+
+fn line_builder(seg_length: f32, spacing: f32, side: i8) -> Vec<[Point2<f32>; 2]> {
+    let mut dashed_line = vec![];
+    let x = WINDOW_W / 2.0 + CAR_W * side as f32;
+    let mut y = 0.0;
+
+    while y < WINDOW_H {
+        dashed_line.push([Point2{x: x, y: y}, Point2{x: x, y: y + seg_length}]);
+        y += seg_length + spacing;
+    }
+
+    dashed_line.clone()
 }
 
 fn main() -> GameResult {
