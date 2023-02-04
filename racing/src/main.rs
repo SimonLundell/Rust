@@ -28,8 +28,8 @@ impl Road {
 
     fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
         let mb = &mut MeshBuilder::new();
-        self.left = line_builder(10.0, 5.0, -1, self.pos);
-        self.right = line_builder(10.0, 5.0, 1, self.pos);
+        self.left = self.line_builder(10.0, 5.0, -1, self.pos);
+        self.right = self.line_builder(10.0, 5.0, 1, self.pos);
         if self.left.len() == self.right.len() {
             for i in 0..self.left.len() {
                 mb.line(&self.left[i], 2.0, Color::YELLOW)?;
@@ -57,6 +57,19 @@ impl Road {
     fn get_car_speed(&mut self, speed: f32) {
         self.speed = speed;
     }
+
+    fn line_builder(&self, seg_length: f32, spacing: f32, side: i8, speed: f32) -> Vec<[Point2<f32>; 2]> {
+        let mut dashed_line = vec![];
+        let x = WINDOW_W / 2.0 + CAR_W * 1.5 * side as f32;
+        let mut y = speed;
+
+        while y < WINDOW_H {
+            dashed_line.push([Point2{x: x, y: y}, Point2{x: x, y: y + seg_length}]);
+            y += seg_length + spacing;
+        }
+
+        dashed_line.clone()
+    }
 }
 
 
@@ -64,24 +77,34 @@ struct Car {
     w: f32,
     h: f32,
     pos: Point2<f32>,
+    corners : Vec<Point2<f32>>,
     speed: f32,
 }
 
 impl Car {
-    fn new(w: f32, h: f32, pos: Point2<f32>, speed: f32) -> Car {
-        Car{w: w, h: h, pos: pos, speed: speed}
+    fn new(w: f32, h: f32, pos: Point2<f32>, corners: Vec<Point2<f32>>, speed: f32) -> Car {
+        Car{w: w, h: h, pos: pos, corners: corners, speed: speed}
     }
 
     fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
-        let rect = Rect::new(self.pos.x, self.pos.y, self.w, self.h);
-        // rect.rotate(f32::to_radians(-1.0)); Rotates entire world for some reason
-        let rect_mesh = Mesh::new_rectangle(ctx, graphics::DrawMode::stroke(4.0), rect, Color::RED)?;
-        graphics::Canvas::draw(canvas, &rect_mesh, DrawParam::default());
+        let mb = &mut MeshBuilder::new();
+        mb.line(&self.corners, 2.0, Color::RED)?;
+        let car = Mesh::from_data(ctx, mb.build());
+        graphics::Canvas::draw(canvas, &car, DrawParam::default());
         Ok(())
     }
 
     pub fn get_speed(&self) -> f32 {
         self.speed
+    }
+
+    fn rotate_points(&mut self, angle: f32) {
+        for i in 0..self.corners.len() - 1 {
+            self.corners[i].x = self.pos.x + (self.corners[i].x - self.pos.x) * f32::cos(angle) - (self.corners[i].y - self.pos.y) * f32::sin(angle);
+            self.corners[i].y = self.pos.y + (self.corners[i].x - self.pos.x) * f32::sin(angle) + (self.corners[i].y - self.pos.y) * f32::cos(angle);
+        }
+
+        self.corners[4] = self.corners[0].clone();
     }
 }
 
@@ -93,7 +116,12 @@ struct MainState {
 impl MainState {
     fn new(ctx: &mut Context) -> GameResult<MainState> {
         let pos: Point2<f32> = START_POS;
-        let ego = Car::new(CAR_W, CAR_H, pos, 0.0);
+        let corners: Vec<Point2<f32>> = vec![Point2{x: pos.x - CAR_W/2.0, y: pos.y + CAR_H/2.0},
+                                            Point2{x: pos.x + CAR_W/2.0, y: pos.y + CAR_H/2.0}, 
+                                            Point2{x: pos.x + CAR_W/2.0, y: pos.y - CAR_H/2.0}, 
+                                            Point2{x: pos.x - CAR_W/2.0, y: pos.y - CAR_H/2.0},
+                                            Point2{x: pos.x - CAR_W/2.0, y: pos.y + CAR_H/2.0}];
+        let ego = Car::new(CAR_W, CAR_H, pos, corners, 0.0);
         let road = Road::new(ROAD_CENTER, vec![], vec![], 0.0, 0.0);
         let state = MainState{car: ego, road: road};
         Ok(state)
@@ -103,10 +131,12 @@ impl MainState {
 impl event::EventHandler<ggez::GameError> for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
         if ctx.keyboard.is_key_pressed(KeyCode::Left) {
-            self.car.pos.x -= 1.0;
+            self.car.rotate_points(-0.02);
+            // self.car.pos.x -= 1.0;
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Right) {
-            self.car.pos.x += 1.0;
+            self.car.rotate_points(0.02);
+            // self.car.pos.x += 1.0;
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
             self.car.speed += 0.01;
@@ -135,19 +165,6 @@ impl event::EventHandler<ggez::GameError> for MainState {
         Ok(())
     }
 
-}
-
-fn line_builder(seg_length: f32, spacing: f32, side: i8, speed: f32) -> Vec<[Point2<f32>; 2]> {
-    let mut dashed_line = vec![];
-    let x = WINDOW_W / 2.0 + CAR_W * 1.5 * side as f32;
-    let mut y = speed;
-
-    while y < WINDOW_H {
-        dashed_line.push([Point2{x: x, y: y}, Point2{x: x, y: y + seg_length}]);
-        y += seg_length + spacing;
-    }
-
-    dashed_line.clone()
 }
 
 fn main() -> GameResult {
