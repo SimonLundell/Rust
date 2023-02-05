@@ -10,6 +10,8 @@ const WINDOW_W: f32 = 600.0;
 const WINDOW_H: f32 = 800.0;
 const CAR_W: f32 = 30.0;
 const CAR_H: f32 = 60.0;
+const CAR_VEL: f32 = 0.01;
+const STEERING_VEL: f32 = 0.02;
 const START_POS: Point2<f32> = Point2{x: WINDOW_W / 2.0, y: WINDOW_H - (4.0 * CAR_H)};
 const ROAD_CENTER: [Point2<f32>; 2] = [Point2{x: WINDOW_W / 2.0, y: 0.0}, Point2{x: WINDOW_W / 2.0, y: WINDOW_H}];
 
@@ -79,11 +81,12 @@ struct Car {
     pos: Point2<f32>,
     corners : Vec<Point2<f32>>,
     speed: f32,
+    heading: f32,
 }
 
 impl Car {
-    fn new(w: f32, h: f32, pos: Point2<f32>, corners: Vec<Point2<f32>>, speed: f32) -> Car {
-        Car{w: w, h: h, pos: pos, corners: corners, speed: speed}
+    fn new(w: f32, h: f32, pos: Point2<f32>, corners: Vec<Point2<f32>>, speed: f32, heading: f32) -> Car {
+        Car{w: w, h: h, pos: pos, corners: corners, speed: speed, heading: heading}
     }
 
     fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
@@ -98,6 +101,36 @@ impl Car {
         self.speed
     }
 
+    fn set_speed(&mut self, speed: f32) {
+        self.speed += speed;
+
+        if self.speed > 2.5 {
+            self.speed = 2.5;
+        }
+        else if self.speed < -1.25 {
+            self.speed = -1.25;
+        }
+    }
+
+    fn set_heading(&mut self, heading: f32) {
+        self.heading += heading;
+    }
+
+    fn move_points(&mut self, direction: f32) {
+        self.pos.x -= direction * f32::sin(-self.heading);
+        self.pos.y -= direction * f32::cos(-self.heading);
+
+        self.corners[0].x = self.pos.x - CAR_W/2.0;
+        self.corners[0].y = self.pos.y + CAR_H/2.0;
+        self.corners[1].x = self.pos.x + CAR_W/2.0; 
+        self.corners[1].y = self.pos.y + CAR_H/2.0; 
+        self.corners[2].x = self.pos.x + CAR_W/2.0;
+        self.corners[2].y = self.pos.y - CAR_H/2.0; 
+        self.corners[3].x = self.pos.x - CAR_W/2.0;
+        self.corners[3].y = self.pos.y - CAR_H/2.0;
+        self.corners[4] = self.corners[0].clone();
+    }
+
     fn rotate_points(&mut self, angle: f32) {
         for i in 0..self.corners.len() - 1 {
             // Clone to not modify the value to early, causing rectangle to shrink
@@ -107,6 +140,11 @@ impl Car {
         }
 
         self.corners[4] = self.corners[0].clone();
+    }
+
+    fn update_position(&mut self) {
+        self.move_points(self.speed);
+        self.rotate_points(self.heading);
     }
 }
 
@@ -123,7 +161,7 @@ impl MainState {
                                             Point2{x: pos.x + CAR_W/2.0, y: pos.y - CAR_H/2.0}, 
                                             Point2{x: pos.x - CAR_W/2.0, y: pos.y - CAR_H/2.0},
                                             Point2{x: pos.x - CAR_W/2.0, y: pos.y + CAR_H/2.0}];
-        let ego = Car::new(CAR_W, CAR_H, pos, corners, 0.0);
+        let ego = Car::new(CAR_W, CAR_H, pos, corners, 0.0, 0.0);
         let road = Road::new(ROAD_CENTER, vec![], vec![], 0.0, 0.0);
         let state = MainState{car: ego, road: road};
         Ok(state)
@@ -133,25 +171,24 @@ impl MainState {
 impl event::EventHandler<ggez::GameError> for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
         if ctx.keyboard.is_key_pressed(KeyCode::Left) {
-            self.car.rotate_points(-0.02);
-            // self.car.pos.x -= 1.0;
+            self.car.set_heading(-STEERING_VEL);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Right) {
-            self.car.rotate_points(0.02);
-            // self.car.pos.x += 1.0;
+            self.car.set_heading(STEERING_VEL);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
-            self.car.speed += 0.01;
-            if self.car.speed >= 2.5 {
-                self.car.speed = 2.5;
-            }
+            self.car.set_speed(CAR_VEL);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Down) {
-            self.car.speed -= 0.01;
-            if self.car.speed <= -1.25 {
-                self.car.speed = -1.25;
+            // Handbrake
+            if ctx.keyboard.is_key_pressed(KeyCode::LShift) {
+                self.car.set_speed(-self.car.get_speed());
             }
+
+            self.car.set_speed(-CAR_VEL);
         }
+    
+        self.car.update_position();
         self.road.get_car_speed(self.car.get_speed());
         Ok(())
     }
