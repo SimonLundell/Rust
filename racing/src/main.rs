@@ -102,9 +102,8 @@ impl Car {
         for i in 0..self.corners.len() - 1 {
             // Clone to not modify the value to early, causing rectangle to shrink
             let temp_x = self.corners[i].x.clone();
-            let temp_y = self.corners[i].y.clone();
-            self.corners[i].x = self.pos.x + (temp_x - self.pos.x) * f32::cos(angle) - (temp_y - self.pos.y) * f32::sin(angle);
-            self.corners[i].y = self.pos.y + (temp_x - self.pos.x) * f32::sin(angle) + (temp_y - self.pos.y) * f32::cos(angle);
+            self.corners[i].x = self.pos.x + (self.corners[i].x - self.pos.x) * f32::cos(angle) - (self.corners[i].y - self.pos.y) * f32::sin(angle);
+            self.corners[i].y = self.pos.y + (temp_x - self.pos.x) * f32::sin(angle) + (self.corners[i].y - self.pos.y) * f32::cos(angle);
         }
 
         self.corners[4] = self.corners[0].clone();
