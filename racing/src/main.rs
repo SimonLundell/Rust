@@ -1,15 +1,17 @@
 use ggez::event;
 use ggez::input::keyboard::{KeyCode};
-use ggez::graphics::{self, Canvas, DrawParam, Color, Quad, Rect, Mesh, MeshBuilder};
+use ggez::graphics::{self, Canvas, DrawParam, Color, Rect, Mesh, MeshBuilder};
 use ggez::{Context, GameResult};
 use ggez::conf::*;
 use mint::{Point2};
-use rand::Rng;
+// use rand::Rng;
 
 const WINDOW_W: f32 = 600.0;
 const WINDOW_H: f32 = 800.0;
 const CAR_W: f32 = 30.0;
 const CAR_H: f32 = 60.0;
+const HALF_CAR_W: f32 = CAR_W / 2.0;
+const HALF_CAR_H: f32 = CAR_H / 2.0;
 const CAR_VEL: f32 = 0.01;
 const STEERING_VEL: f32 = 0.02;
 const START_POS: Point2<f32> = Point2{x: WINDOW_W / 2.0, y: WINDOW_H - (4.0 * CAR_H)};
@@ -76,8 +78,6 @@ impl Road {
 
 
 struct Car {
-    w: f32,
-    h: f32,
     pos: Point2<f32>,
     corners : Vec<Point2<f32>>,
     speed: f32,
@@ -85,8 +85,8 @@ struct Car {
 }
 
 impl Car {
-    fn new(w: f32, h: f32, pos: Point2<f32>, corners: Vec<Point2<f32>>, speed: f32, heading: f32) -> Car {
-        Car{w: w, h: h, pos: pos, corners: corners, speed: speed, heading: heading}
+    fn new(pos: Point2<f32>, corners: Vec<Point2<f32>>, speed: f32, heading: f32) -> Car {
+        Car{pos: pos, corners: corners, speed: speed, heading: heading}
     }
 
     fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
@@ -120,14 +120,14 @@ impl Car {
         self.pos.x -= direction * f32::sin(-self.heading);
         self.pos.y -= direction * f32::cos(-self.heading);
 
-        self.corners[0].x = self.pos.x - CAR_W/2.0;
-        self.corners[0].y = self.pos.y + CAR_H/2.0;
-        self.corners[1].x = self.pos.x + CAR_W/2.0; 
-        self.corners[1].y = self.pos.y + CAR_H/2.0; 
-        self.corners[2].x = self.pos.x + CAR_W/2.0;
-        self.corners[2].y = self.pos.y - CAR_H/2.0; 
-        self.corners[3].x = self.pos.x - CAR_W/2.0;
-        self.corners[3].y = self.pos.y - CAR_H/2.0;
+        self.corners[0].x = self.pos.x - HALF_CAR_W;
+        self.corners[0].y = self.pos.y + HALF_CAR_H;
+        self.corners[1].x = self.pos.x + HALF_CAR_W; 
+        self.corners[1].y = self.pos.y + HALF_CAR_H; 
+        self.corners[2].x = self.pos.x + HALF_CAR_W;
+        self.corners[2].y = self.pos.y - HALF_CAR_H; 
+        self.corners[3].x = self.pos.x - HALF_CAR_W;
+        self.corners[3].y = self.pos.y - HALF_CAR_H;
         self.corners[4] = self.corners[0].clone();
     }
 
@@ -154,14 +154,14 @@ struct MainState {
 }
 
 impl MainState {
-    fn new(ctx: &mut Context) -> GameResult<MainState> {
+    fn new(_ctx: &mut Context) -> GameResult<MainState> {
         let pos: Point2<f32> = START_POS;
-        let corners: Vec<Point2<f32>> = vec![Point2{x: pos.x - CAR_W/2.0, y: pos.y + CAR_H/2.0},
-                                            Point2{x: pos.x + CAR_W/2.0, y: pos.y + CAR_H/2.0}, 
-                                            Point2{x: pos.x + CAR_W/2.0, y: pos.y - CAR_H/2.0}, 
-                                            Point2{x: pos.x - CAR_W/2.0, y: pos.y - CAR_H/2.0},
-                                            Point2{x: pos.x - CAR_W/2.0, y: pos.y + CAR_H/2.0}];
-        let ego = Car::new(CAR_W, CAR_H, pos, corners, 0.0, 0.0);
+        let corners: Vec<Point2<f32>> = vec![Point2{x: pos.x - HALF_CAR_W, y: pos.y + HALF_CAR_H},
+                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y + HALF_CAR_H}, 
+                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y - HALF_CAR_H}, 
+                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y - HALF_CAR_H},
+                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y + HALF_CAR_H}];
+        let ego = Car::new(pos, corners, 0.0, 0.0);
         let road = Road::new(ROAD_CENTER, vec![], vec![], 0.0, 0.0);
         let state = MainState{car: ego, road: road};
         Ok(state)
@@ -198,8 +198,8 @@ impl event::EventHandler<ggez::GameError> for MainState {
             ctx,
             graphics::Color::from([0.0, 0.5, 0.0, 1.0]),
         );
-        self.road.draw(&mut canvas, ctx);
-        self.car.draw(&mut canvas, ctx);
+        self.road.draw(&mut canvas, ctx)?;
+        self.car.draw(&mut canvas, ctx)?;
         canvas.finish(ctx)?;
         Ok(())
     }
