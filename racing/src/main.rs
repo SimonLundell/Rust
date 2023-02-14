@@ -11,7 +11,6 @@ const WINDOW_H: f32 = 800.0;
 const CAR_W: f32 = 30.0;
 const CAR_H: f32 = 60.0;
 const HALF_CAR_W: f32 = CAR_W / 2.0;
-const HALF_CAR_H: f32 = CAR_H / 2.0;
 const CAR_VEL: f32 = 0.01;
 const STEERING_VEL: f32 = 0.02;
 const START_POS: Point2<f32> = Point2{x: WINDOW_W / 2.0, y: WINDOW_H - (4.0 * CAR_H)};
@@ -79,19 +78,22 @@ impl Road {
 
 struct Car {
     pos: Point2<f32>,
-    corners : Vec<Point2<f32>>,
+    vertices : Vec<Point2<f32>>,
     speed: f32,
     heading: f32,
+    wheelbase: f32,
+    rear_axle_from_front: f32,
+    rear_overhang: f32
 }
 
 impl Car {
-    fn new(pos: Point2<f32>, corners: Vec<Point2<f32>>, speed: f32, heading: f32) -> Car {
-        Car{pos: pos, corners: corners, speed: speed, heading: heading}
+    fn new(pos: Point2<f32>, vertices: Vec<Point2<f32>>, speed: f32, heading: f32, wheelbase: f32, rear_axle_from_front: f32, rear_overhang: f32) -> Car {
+        Car{pos: pos, vertices: vertices, speed: speed, heading: heading, wheelbase: wheelbase, rear_axle_from_front: rear_axle_from_front, rear_overhang: rear_overhang}   
     }
 
     fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
         let mb = &mut MeshBuilder::new();
-        mb.line(&self.corners, 2.0, Color::RED)?;
+        mb.line(&self.vertices, 2.0, Color::RED)?;
         let car = Mesh::from_data(ctx, mb.build());
         graphics::Canvas::draw(canvas, &car, DrawParam::default());
         Ok(())
@@ -116,30 +118,26 @@ impl Car {
         self.heading += heading;
     }
 
-    fn move_points(&mut self, direction: f32) {
-        self.pos.x -= direction * f32::sin(-self.heading);
-        self.pos.y -= direction * f32::cos(-self.heading);
+    fn move_points(&mut self, speed: f32) {
+        self.pos.x -= speed * f32::sin(-self.heading);
+        self.pos.y -= speed * f32::cos(-self.heading);
 
-        self.corners[0].x = self.pos.x - HALF_CAR_W;
-        self.corners[0].y = self.pos.y + HALF_CAR_H;
-        self.corners[1].x = self.pos.x + HALF_CAR_W; 
-        self.corners[1].y = self.pos.y + HALF_CAR_H; 
-        self.corners[2].x = self.pos.x + HALF_CAR_W;
-        self.corners[2].y = self.pos.y - HALF_CAR_H; 
-        self.corners[3].x = self.pos.x - HALF_CAR_W;
-        self.corners[3].y = self.pos.y - HALF_CAR_H;
-        self.corners[4] = self.corners[0].clone();
+        self.vertices[0] = Point2{x: self.pos.x - HALF_CAR_W, y: self.pos.y + self.rear_overhang};
+        self.vertices[1] = Point2{x: self.pos.x + HALF_CAR_W, y: self.pos.y + self.rear_overhang};
+        self.vertices[2] = Point2{x: self.pos.x + HALF_CAR_W, y: self.pos.y - self.rear_axle_from_front};
+        self.vertices[3] = Point2{x: self.pos.x - HALF_CAR_W, y: self.pos.y - self.rear_axle_from_front};
+        self.vertices[4] = self.vertices[0].clone();
     }
 
     fn rotate_points(&mut self, angle: f32) {
-        for i in 0..self.corners.len() - 1 {
+        for i in 0..self.vertices.len() - 1 {
             // Clone to not modify the value to early, causing rectangle to shrink
-            let temp_x = self.corners[i].x.clone();
-            self.corners[i].x = self.pos.x + (self.corners[i].x - self.pos.x) * f32::cos(angle) - (self.corners[i].y - self.pos.y) * f32::sin(angle);
-            self.corners[i].y = self.pos.y + (temp_x - self.pos.x) * f32::sin(angle) + (self.corners[i].y - self.pos.y) * f32::cos(angle);
+            let temp_x = self.vertices[i].x.clone();
+            self.vertices[i].x = self.pos.x + (self.vertices[i].x - self.pos.x) * f32::cos(angle) - (self.vertices[i].y - self.pos.y) * f32::sin(angle);
+            self.vertices[i].y = self.pos.y + (temp_x - self.pos.x) * f32::sin(angle) + (self.vertices[i].y - self.pos.y) * f32::cos(angle);
         }
 
-        self.corners[4] = self.corners[0].clone();
+        self.vertices[4] = self.vertices[0].clone();
     }
 
     fn update_position(&mut self) {
@@ -156,12 +154,15 @@ struct MainState {
 impl MainState {
     fn new(_ctx: &mut Context) -> GameResult<MainState> {
         let pos: Point2<f32> = START_POS;
-        let corners: Vec<Point2<f32>> = vec![Point2{x: pos.x - HALF_CAR_W, y: pos.y + HALF_CAR_H},
-                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y + HALF_CAR_H}, 
-                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y - HALF_CAR_H}, 
-                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y - HALF_CAR_H},
-                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y + HALF_CAR_H}];
-        let ego = Car::new(pos, corners, 0.0, 0.0);
+        let wheelbase: f32 = 40.0;
+        let rear_overhang: f32 = (CAR_H - wheelbase) / 2.0;
+        let rear_axle_from_front: f32 = CAR_H - rear_overhang;
+        let vertices: Vec<Point2<f32>> = vec![Point2{x: pos.x - HALF_CAR_W, y: pos.y + rear_overhang},
+                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y + rear_overhang}, 
+                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y - rear_axle_from_front}, 
+                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y - rear_axle_from_front},
+                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y + rear_overhang}];
+        let ego = Car::new(pos, vertices, 0.0, 0.0, wheelbase, rear_axle_from_front, rear_overhang);
         let road = Road::new(ROAD_CENTER, vec![], vec![], 0.0, 0.0);
         let state = MainState{car: ego, road: road};
         Ok(state)
