@@ -12,12 +12,15 @@ mod road;
 const WINDOW_W: f32 = 600.0;
 const WINDOW_H: f32 = 800.0;
 const CAR_W: f32 = 30.0;
-const CAR_H: f32 = 60.0;
+const CAR_L: f32 = 60.0;
 const HALF_CAR_W: f32 = CAR_W / 2.0;
 const CAR_VEL: f32 = 0.01;
-const STEERING_VEL: f32 = 0.02;
-const START_POS: Point2<f32> = Point2{x: WINDOW_W / 2.0, y: WINDOW_H - (4.0 * CAR_H)};
+const STEERING_VEL: f32 = 0.01;
+const START_POS: Point2<f32> = Point2{x: WINDOW_W / 2.0, y: WINDOW_H - (4.0 * CAR_L)};
 const ROAD_CENTER: [Point2<f32>; 2] = [Point2{x: WINDOW_W / 2.0, y: 0.0}, Point2{x: WINDOW_W / 2.0, y: WINDOW_H}];
+const WHEELBASE: f32 = 40.0;
+const REAR_OVERHANG: f32 = (CAR_L - WHEELBASE) / 2.0;
+const REAR_AXLE_FROM_FRONT: f32 = CAR_L - REAR_OVERHANG;
 
 
 struct MainState {
@@ -28,15 +31,12 @@ struct MainState {
 impl MainState {
     fn new(_ctx: &mut Context) -> GameResult<MainState> {
         let pos: Point2<f32> = START_POS;
-        let wheelbase: f32 = 40.0;
-        let rear_overhang: f32 = (CAR_H - wheelbase) / 2.0;
-        let rear_axle_from_front: f32 = CAR_H - rear_overhang;
-        let vertices: Vec<Point2<f32>> = vec![Point2{x: pos.x - HALF_CAR_W, y: pos.y + rear_overhang},
-                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y + rear_overhang}, 
-                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y - rear_axle_from_front}, 
-                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y - rear_axle_from_front},
-                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y + rear_overhang}];
-        let ego = car::Car::new(pos, vertices, 0.0, 0.0, wheelbase, rear_axle_from_front, rear_overhang);
+        let vertices: Vec<Point2<f32>> = vec![Point2{x: pos.x - HALF_CAR_W, y: pos.y + REAR_OVERHANG},
+                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y + REAR_OVERHANG}, 
+                                            Point2{x: pos.x + HALF_CAR_W, y: pos.y - REAR_AXLE_FROM_FRONT}, 
+                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y - REAR_AXLE_FROM_FRONT},
+                                            Point2{x: pos.x - HALF_CAR_W, y: pos.y + REAR_OVERHANG}];
+        let ego = car::Car::new(pos, vertices, 0.0, 0.0, 0.0);
         let road = road::Road::new(ROAD_CENTER, vec![], vec![], 0.0, 0.0);
         let state = MainState{car: ego, road: road};
         Ok(state)
@@ -45,14 +45,18 @@ impl MainState {
 
 impl event::EventHandler<ggez::GameError> for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
+        if self.car.get_speed() > 0.0 {
+            self.car.set_speed(-CAR_VEL / 10.0);
+        }
         if ctx.keyboard.is_key_pressed(KeyCode::Left) {
-            self.car.set_heading(-STEERING_VEL);
+            self.car.set_steering(-STEERING_VEL);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Right) {
-            self.car.set_heading(STEERING_VEL);
+            self.car.set_steering(STEERING_VEL);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
-            self.car.set_speed(CAR_VEL);
+            self.car.set_speed(CAR_VEL * f32::cos(self.car.get_yaw()));
+            self.car.set_yaw();
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Down) {
             // Handbrake
@@ -61,6 +65,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
             }
 
             self.car.set_speed(-CAR_VEL);
+            self.car.set_yaw();
         }
     
         self.car.update_position();

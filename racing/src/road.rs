@@ -17,7 +17,7 @@ pub struct Road {
 
 impl Road {
     pub fn new(center: [Point2<f32>; 2], left: Vec<[Point2<f32>; 2]>, right: Vec<[Point2<f32>; 2]>, pos: f32, speed: f32) -> Road {
-        Road{center: center, left: left, right: right, pos: pos, speed: speed}
+        Road{center, left, right, pos, speed}
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
