@@ -8,6 +8,8 @@ const HALF_CAR_W: f32 = CAR_W / 2.0;
 const WHEELBASE: f32 = 40.0;
 const REAR_OVERHANG: f32 = (CAR_L - WHEELBASE) / 2.0;
 const REAR_AXLE_FROM_FRONT: f32 = CAR_L - REAR_OVERHANG;
+const CAR_VEL: f32 = 0.01;
+const FRICTION: f32 = CAR_VEL / 10.0;
 
 pub struct Car {
     pos: Point2<f32>,
@@ -17,6 +19,7 @@ pub struct Car {
     yaw: f32,
 }
 
+#[allow(dead_code)]
 impl Car {
     pub fn new(pos: Point2<f32>, vertices: Vec<Point2<f32>>, speed: f32, steering: f32, yaw: f32) -> Car {
         Car{pos, vertices, speed, steering, yaw}   
@@ -46,21 +49,39 @@ impl Car {
     }
 
     pub fn set_steering(&mut self, steering: f32) {
-        self.steering += steering;
+        if (steering > 0.0 && self.steering < 3.14 / 3.0) || (steering < 0.0 && self.steering > -3.14 / 3.0) {
+            self.steering += steering;
+        }
+        else if steering == 0.0 {
+            self.steering = 0.0;
+        }
+
+    }
+
+    pub fn get_steering(&self) -> f32 {
+        self.steering
     }
 
     pub fn set_yaw(&mut self) {
-        if self.yaw > self.steering {
+        if self.steering < 0.0 {
             self.yaw -= 0.01;
         }
-        else {
+        else if self.steering > 0.0 {
             self.yaw += 0.01;
         }
-        println!("yaw: {} steering: {}", self.yaw, self.steering)
     }
 
     pub fn get_yaw(&self) -> f32 {
         self.yaw
+    }
+
+    pub fn apply_friction(&mut self) {
+        if self.get_speed() > 0.0 {
+            self.set_speed(-FRICTION);
+        }
+        else if self.get_speed() < 0.0 {
+            self.set_speed(FRICTION);
+        }
     }
 
     fn move_points(&mut self, speed: f32) {

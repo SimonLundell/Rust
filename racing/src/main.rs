@@ -45,9 +45,8 @@ impl MainState {
 
 impl event::EventHandler<ggez::GameError> for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        if self.car.get_speed() > 0.0 {
-            self.car.set_speed(-CAR_VEL / 10.0);
-        }
+        self.car.apply_friction();
+
         if ctx.keyboard.is_key_pressed(KeyCode::Left) {
             self.car.set_steering(-STEERING_VEL);
         }
@@ -55,7 +54,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
             self.car.set_steering(STEERING_VEL);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
-            self.car.set_speed(CAR_VEL * f32::cos(self.car.get_yaw()));
+            self.car.set_speed(CAR_VEL);
             self.car.set_yaw();
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Down) {
@@ -66,6 +65,9 @@ impl event::EventHandler<ggez::GameError> for MainState {
 
             self.car.set_speed(-CAR_VEL);
             self.car.set_yaw();
+        }
+        if ctx.keyboard.is_key_just_released(KeyCode::Left) || ctx.keyboard.is_key_just_released(KeyCode::Right) {
+            self.car.set_steering(0.0);
         }
     
         self.car.update_position();
