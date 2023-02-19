@@ -63,11 +63,16 @@ impl Car {
     }
 
     pub fn set_yaw(&mut self) {
+        let mut angular_vel: f32 = 0.01;
+        if self.get_speed() < 0.0 {
+            angular_vel = -0.01;
+        }
+        
         if self.steering < 0.0 {
-            self.yaw -= 0.01;
+            self.yaw -= angular_vel;
         }
         else if self.steering > 0.0 {
-            self.yaw += 0.01;
+            self.yaw += angular_vel;
         }
     }
 
