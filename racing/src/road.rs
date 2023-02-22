@@ -5,7 +5,6 @@ use mint::{Point2};
 
 const WINDOW_W: f32 = 600.0;
 const WINDOW_H: f32 = 800.0;
-const CAR_W: f32 = 30.0;
 
 pub struct Road {
     center: [Point2<f32>; 2],
@@ -16,6 +15,9 @@ pub struct Road {
 }
 
 impl Road {
+    // Constants
+    const CAR_W: f32 = 30.0;
+
     pub fn new(center: [Point2<f32>; 2], left: Vec<[Point2<f32>; 2]>, right: Vec<[Point2<f32>; 2]>, pos: f32, speed: f32) -> Road {
         Road{center, left, right, pos, speed}
     }
@@ -40,7 +42,7 @@ impl Road {
 
         let line = Mesh::from_data(ctx, mb.build());
         let center_line_mesh = Mesh::new_line(ctx, &self.center, 2.0, Color::WHITE)?;
-        let rect = Rect::new(WINDOW_W / 2.0 - CAR_W * 1.5, 0.0, 2.0 * (CAR_W * 1.5), WINDOW_H);
+        let rect = Rect::new(WINDOW_W / 2.0 - Self::CAR_W * 1.5, 0.0, 2.0 * (Self::CAR_W * 1.5), WINDOW_H);
         let rect_mesh = Mesh::new_rectangle(ctx, graphics::DrawMode::fill(), rect, Color::BLACK)?;
         graphics::Canvas::draw(canvas, &rect_mesh, DrawParam::default());
         graphics::Canvas::draw(canvas, &line, DrawParam::default());
@@ -54,7 +56,7 @@ impl Road {
 
     fn line_builder(&self, seg_length: f32, spacing: f32, side: i8, speed: f32) -> Vec<[Point2<f32>; 2]> {
         let mut dashed_line = vec![];
-        let x = WINDOW_W / 2.0 + CAR_W * 1.5 * side as f32;
+        let x = WINDOW_W / 2.0 + Self::CAR_W * 1.5 * side as f32;
         let mut y = speed;
 
         while y < WINDOW_H {

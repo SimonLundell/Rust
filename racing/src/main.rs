@@ -69,6 +69,9 @@ impl event::EventHandler<ggez::GameError> for MainState {
         if ctx.keyboard.is_key_just_released(KeyCode::Left) || ctx.keyboard.is_key_just_released(KeyCode::Right) {
             self.car.set_steering(0.0);
         }
+        // if ctx.keyboard.is_key_pressed(KeyCode::A) {
+        //     self.road.b_spline_segment(vec![Point2{x: 0.0,y: 0.0}], vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0], 3, 3.0);
+        // }
     
         self.car.update_position();
         self.road.get_car_speed(self.car.get_speed());

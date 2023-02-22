@@ -2,15 +2,6 @@ use ggez::graphics::{self, Canvas, DrawParam, Color, Mesh, MeshBuilder};
 use ggez::{Context, GameResult};
 use mint::{Point2};
 
-const CAR_W: f32 = 30.0;
-const CAR_L: f32 = 60.0;
-const HALF_CAR_W: f32 = CAR_W / 2.0;
-const WHEELBASE: f32 = 40.0;
-const REAR_OVERHANG: f32 = (CAR_L - WHEELBASE) / 2.0;
-const REAR_AXLE_FROM_FRONT: f32 = CAR_L - REAR_OVERHANG;
-const CAR_VEL: f32 = 0.01;
-const FRICTION: f32 = CAR_VEL / 10.0;
-
 pub struct Car {
     pos: Point2<f32>,
     vertices : Vec<Point2<f32>>,
@@ -21,6 +12,15 @@ pub struct Car {
 
 #[allow(dead_code)]
 impl Car {
+    const CAR_W: f32 = 30.0;
+    const CAR_L: f32 = 60.0;
+    const HALF_CAR_W: f32 = Self::CAR_W / 2.0;
+    const WHEELBASE: f32 = 40.0;
+    const REAR_OVERHANG: f32 = (Self::CAR_L - Self::WHEELBASE) / 2.0;
+    const REAR_AXLE_FROM_FRONT: f32 = Self::CAR_L - Self::REAR_OVERHANG;
+    const CAR_VEL: f32 = 0.01;
+    const FRICTION: f32 = Self::CAR_VEL / 10.0;
+
     pub fn new(pos: Point2<f32>, vertices: Vec<Point2<f32>>, speed: f32, steering: f32, yaw: f32) -> Car {
         Car{pos, vertices, speed, steering, yaw}   
     }
@@ -82,10 +82,10 @@ impl Car {
 
     pub fn apply_friction(&mut self) {
         if self.get_speed() > 0.0 {
-            self.set_speed(-FRICTION);
+            self.set_speed(-Self::FRICTION);
         }
         else if self.get_speed() < 0.0 {
-            self.set_speed(FRICTION);
+            self.set_speed(Self::FRICTION);
         }
     }
 
@@ -93,10 +93,10 @@ impl Car {
         self.pos.x -= speed * f32::sin(-self.yaw);
         self.pos.y -= speed * f32::cos(-self.yaw);
 
-        self.vertices[0] = Point2{x: self.pos.x - HALF_CAR_W, y: self.pos.y + REAR_OVERHANG};
-        self.vertices[1] = Point2{x: self.pos.x + HALF_CAR_W, y: self.pos.y + REAR_OVERHANG};
-        self.vertices[2] = Point2{x: self.pos.x + HALF_CAR_W, y: self.pos.y - REAR_AXLE_FROM_FRONT};
-        self.vertices[3] = Point2{x: self.pos.x - HALF_CAR_W, y: self.pos.y - REAR_AXLE_FROM_FRONT};
+        self.vertices[0] = Point2{x: self.pos.x - Self::HALF_CAR_W, y: self.pos.y + Self::REAR_OVERHANG};
+        self.vertices[1] = Point2{x: self.pos.x + Self::HALF_CAR_W, y: self.pos.y + Self::REAR_OVERHANG};
+        self.vertices[2] = Point2{x: self.pos.x + Self::HALF_CAR_W, y: self.pos.y - Self::REAR_AXLE_FROM_FRONT};
+        self.vertices[3] = Point2{x: self.pos.x - Self::HALF_CAR_W, y: self.pos.y - Self::REAR_AXLE_FROM_FRONT};
         self.vertices[4] = self.vertices[0].clone();
     }
 
