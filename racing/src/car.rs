@@ -22,7 +22,7 @@ impl Car {
     const FRICTION: f32 = Self::CAR_VEL / 10.0;
 
     pub fn new(pos: Point2<f32>, vertices: Vec<Point2<f32>>, speed: f32, steering: f32, yaw: f32) -> Car {
-        Car{pos, vertices, speed, steering, yaw}   
+        Car{pos, vertices, speed, steering, yaw}
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
@@ -134,5 +134,12 @@ impl Car {
     pub fn update_position(&mut self) {
         self.move_points(self.speed);
         self.rotate_points(self.yaw);
+    }
+
+    pub fn reset_car(&mut self, start_pos: Point2<f32>) {
+        self.set_pos(start_pos);
+        self.reset_speed();
+        self.reset_yaw();
+        self.reset_steering();
     }
 }

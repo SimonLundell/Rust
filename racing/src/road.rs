@@ -60,7 +60,6 @@ impl Road {
     }
 
     pub fn set_car_pos(&mut self, car_pos: Point2<f32>) {
-        println!("{:?}", self.car_pos);
         self.car_pos = car_pos;
     }
 

@@ -41,6 +41,12 @@ impl MainState {
         let state = MainState{car: ego, road: road};
         Ok(state)
     }
+
+    fn update_car_and_road(&mut self) {
+        self.car.update_position();
+        self.road.set_car_speed(self.car.get_speed());
+        self.road.set_car_pos(self.car.get_pos());
+    }
 }
 
 impl event::EventHandler<ggez::GameError> for MainState {
@@ -49,42 +55,40 @@ impl event::EventHandler<ggez::GameError> for MainState {
 
         if ctx.keyboard.is_key_pressed(KeyCode::Left) {
             self.car.set_steering(-STEERING_VEL);
-        }
+        } 
         if ctx.keyboard.is_key_pressed(KeyCode::Right) {
             self.car.set_steering(STEERING_VEL);
         }
+        if ctx.keyboard.is_key_just_released(KeyCode::Left) || ctx.keyboard.is_key_just_released(KeyCode::Right) {
+            self.car.set_steering(0.0);
+        }
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
             self.car.set_speed(CAR_VEL);
-            self.car.set_yaw();
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Down) {
+            self.car.set_speed(-2.0 * CAR_VEL);
+
             // Handbrake
             if ctx.keyboard.is_key_pressed(KeyCode::LShift) {
                 self.car.set_speed(-self.car.get_speed());
             }
-
-            self.car.set_speed(-2.0 * CAR_VEL);
-            self.car.set_yaw();
-        }
-        if ctx.keyboard.is_key_just_released(KeyCode::Left) || ctx.keyboard.is_key_just_released(KeyCode::Right) {
-            self.car.set_steering(0.0);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::A) {
             // self.road.spline(vec![1.0,4.0,2.0,3.0,5.0]);
             // self.road.b_spline_segment(vec![Point2{x: 0.0,y: 0.0}], vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0], 3, 3.0);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::R) {
-            self.car.set_pos(START_POS);
-            self.car.reset_speed();
-            self.car.reset_yaw();
-            self.car.reset_steering();
+            self.car.reset_car(START_POS);
         }
-    
-        self.car.update_position();
-        self.road.set_car_speed(self.car.get_speed());
-        self.road.set_car_pos(self.car.get_pos());
+
+        if self.car.get_speed() != 0.0 {
+            self.car.set_yaw();
+        }
+
+        self.update_car_and_road();
         Ok(())
     }
+
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(
