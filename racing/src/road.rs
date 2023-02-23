@@ -10,7 +10,7 @@ pub struct Road {
     center: [Point2<f32>; 2],
     left: Vec<[Point2<f32>; 2]>,
     right: Vec<[Point2<f32>; 2]>,
-    pos: f32,
+    car_pos: Point2<f32>,
     speed: f32,
 }
 
@@ -18,14 +18,14 @@ impl Road {
     // Constants
     const CAR_W: f32 = 30.0;
 
-    pub fn new(center: [Point2<f32>; 2], left: Vec<[Point2<f32>; 2]>, right: Vec<[Point2<f32>; 2]>, pos: f32, speed: f32) -> Road {
-        Road{center, left, right, pos, speed}
+    pub fn new(center: [Point2<f32>; 2], left: Vec<[Point2<f32>; 2]>, right: Vec<[Point2<f32>; 2]>, car_pos: Point2<f32>, speed: f32) -> Road {
+        Road{center, left, right, car_pos, speed}
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
         let mb = &mut MeshBuilder::new();
-        self.left = self.line_builder(10.0, 5.0, -1, self.pos);
-        self.right = self.line_builder(10.0, 5.0, 1, self.pos);
+        self.left = self.line_builder(10.0, 5.0, -1, self.speed);
+        self.right = self.line_builder(10.0, 5.0, 1, self.speed);
         if self.left.len() == self.right.len() {
             for i in 0..self.left.len() {
                 mb.line(&self.left[i], 2.0, Color::YELLOW)?;
@@ -35,10 +35,10 @@ impl Road {
         else {
             println!("Not same amount of road-markings on left/right lane");
         }
-        self.pos += self.speed;
-        if self.pos > 15.0 {
-            self.pos = 0.0;
-        }
+        // self.pos += self.speed;
+        // if self.pos > 15.0 {
+        //     self.pos = 0.0;
+        // }
 
         let line = Mesh::from_data(ctx, mb.build());
         let center_line_mesh = Mesh::new_line(ctx, &self.center, 2.0, Color::WHITE)?;
@@ -50,8 +50,18 @@ impl Road {
         Ok(())
     }
 
-    pub fn get_car_speed(&mut self, speed: f32) {
-        self.speed = speed;
+    pub fn set_car_speed(&mut self, speed: f32) {
+        if self.car_pos.y <= 320.0 || self.car_pos.y >= 620.0 {
+            self.speed += speed;
+        }
+        if self.speed > 15.0 {
+            self.speed = 0.0;
+        }
+    }
+
+    pub fn set_car_pos(&mut self, car_pos: Point2<f32>) {
+        println!("{:?}", self.car_pos);
+        self.car_pos = car_pos;
     }
 
     fn line_builder(&self, seg_length: f32, spacing: f32, side: i8, speed: f32) -> Vec<[Point2<f32>; 2]> {
@@ -66,4 +76,8 @@ impl Road {
 
         dashed_line.clone()
     }
+
+    // pub fn spline(self, mut vect: Vec<f32>) {
+    //     vect.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    // }
 }

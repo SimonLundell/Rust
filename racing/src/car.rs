@@ -48,14 +48,21 @@ impl Car {
         }
     }
 
+    pub fn reset_speed(&mut self) {
+        self.speed = 0.0;
+    }
+
     pub fn set_steering(&mut self, steering: f32) {
-        if (steering > 0.0 && self.steering < 3.14 / 3.0) || (steering < 0.0 && self.steering > -3.14 / 3.0) {
+        if (steering > 0.0 && self.steering < 3.14 / 2.0) || (steering < 0.0 && self.steering > -3.14 / 2.0) {
             self.steering += steering;
         }
         else if steering == 0.0 {
             self.steering = 0.0;
         }
+    }
 
+    pub fn reset_steering(&mut self) {
+        self.steering = 0.0;
     }
 
     pub fn get_steering(&self) -> f32 {
@@ -75,10 +82,23 @@ impl Car {
             self.yaw += angular_vel;
         }
     }
-
+    
     pub fn get_yaw(&self) -> f32 {
         self.yaw
     }
+
+    pub fn reset_yaw(&mut self) {
+        self.yaw = 0.0;
+    }
+
+    pub fn set_pos(&mut self, pos: Point2<f32>) {
+        self.pos = pos;
+    }
+
+    pub fn get_pos(&self) -> Point2<f32> {
+        self.pos
+    }
+
 
     pub fn apply_friction(&mut self) {
         if self.get_speed() > 0.0 {
