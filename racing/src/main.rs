@@ -29,14 +29,15 @@ struct MainState {
 }
 
 impl MainState {
-    fn new(_ctx: &mut Context) -> GameResult<MainState> {
+    fn new(ctx: &mut Context) -> GameResult<MainState> {
         let pos: Point2<f32> = START_POS;
+        let sprite: graphics::Image = graphics::Image::from_path(ctx, "/car-sprite.png").unwrap();
         let vertices: Vec<Point2<f32>> = vec![Point2{x: pos.x - HALF_CAR_W, y: pos.y + REAR_OVERHANG},
                                             Point2{x: pos.x + HALF_CAR_W, y: pos.y + REAR_OVERHANG}, 
                                             Point2{x: pos.x + HALF_CAR_W, y: pos.y - REAR_AXLE_FROM_FRONT}, 
                                             Point2{x: pos.x - HALF_CAR_W, y: pos.y - REAR_AXLE_FROM_FRONT},
                                             Point2{x: pos.x - HALF_CAR_W, y: pos.y + REAR_OVERHANG}];
-        let ego = car::Car::new(pos, vertices, 0.0, 0.0, 0.0);
+        let ego = car::Car::new(pos, sprite, vertices, 0.0, 0.0, 0.0);
         let road = road::Road::new(ROAD_CENTER, vec![], vec![], pos, 0.0);
         let state = MainState{car: ego, road: road};
         Ok(state)
@@ -63,10 +64,20 @@ impl event::EventHandler<ggez::GameError> for MainState {
             self.car.set_steering(0.0);
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Up) {
-            self.car.set_speed(CAR_VEL);
+            if self.car.get_speed() < 0.0 {
+                self.car.set_speed(3.0 * CAR_VEL);
+            }
+            else {
+                self.car.set_speed(CAR_VEL);
+            }
         }
         if ctx.keyboard.is_key_pressed(KeyCode::Down) {
-            self.car.set_speed(-2.0 * CAR_VEL);
+            if self.car.get_speed() > 0.0 {
+                self.car.set_speed(-3.0 * CAR_VEL);
+            }
+            else {
+                self.car.set_speed(-CAR_VEL);
+            }
 
             // Handbrake
             if ctx.keyboard.is_key_pressed(KeyCode::LShift) {

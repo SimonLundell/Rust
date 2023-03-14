@@ -1,6 +1,7 @@
 use ggez::graphics::{self, Canvas, DrawParam, Color, Rect, Mesh, MeshBuilder};
 use ggez::{Context, GameResult};
 use mint::{Point2};
+use itertools_num::{Linspace, linspace};
 // use rand::Rng;
 
 const WINDOW_W: f32 = 600.0;
@@ -35,11 +36,9 @@ impl Road {
         else {
             println!("Not same amount of road-markings on left/right lane");
         }
-        // self.pos += self.speed;
-        // if self.pos > 15.0 {
-        //     self.pos = 0.0;
-        // }
 
+        // mb.circle(graphics::DrawMode::stroke(2.0), Point2{x: 200.0, y: 200.0}, 20.0, 0.1, Color::WHITE)?;
+        // let curve = self.curve_builder(100.0, 100.0, 10);
         let line = Mesh::from_data(ctx, mb.build());
         let center_line_mesh = Mesh::new_line(ctx, &self.center, 2.0, Color::WHITE)?;
         let rect = Rect::new(WINDOW_W / 2.0 - Self::CAR_W * 1.5, 0.0, 2.0 * (Self::CAR_W * 1.5), WINDOW_H);
@@ -76,7 +75,10 @@ impl Road {
         dashed_line.clone()
     }
 
-    // pub fn spline(self, mut vect: Vec<f32>) {
-    //     vect.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    // }
+    fn curve_builder(&self, length: f32, radius: f32, resolution: u16) -> Vec<f32> {
+        let angles = linspace::<f32>(0., 10., 5);
+        let vec: Vec<f32> = angles.map(|x| x as f32).collect(); 
+        println!("{:?}", vec);
+        vec
+    }
 }

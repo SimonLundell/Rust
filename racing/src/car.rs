@@ -4,6 +4,7 @@ use mint::{Point2};
 
 pub struct Car {
     pos: Point2<f32>,
+    sprite: graphics::Image,
     vertices : Vec<Point2<f32>>,
     speed: f32,
     steering: f32,
@@ -21,8 +22,8 @@ impl Car {
     const CAR_VEL: f32 = 0.01;
     const FRICTION: f32 = Self::CAR_VEL / 10.0;
 
-    pub fn new(pos: Point2<f32>, vertices: Vec<Point2<f32>>, speed: f32, steering: f32, yaw: f32) -> Car {
-        Car{pos, vertices, speed, steering, yaw}
+    pub fn new(pos: Point2<f32>, sprite: graphics::Image, vertices: Vec<Point2<f32>>, speed: f32, steering: f32, yaw: f32) -> Car {
+        Car{pos, sprite, vertices, speed, steering, yaw}
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas, ctx: &mut Context) -> GameResult {
@@ -30,6 +31,7 @@ impl Car {
         mb.line(&self.vertices, 2.0, Color::RED)?;
         let car = Mesh::from_data(ctx, mb.build());
         graphics::Canvas::draw(canvas, &car, DrawParam::default());
+        graphics::Canvas::draw(canvas, &self.get_sprite(), graphics::DrawParam::default().dest(self.get_pos()));
         Ok(())
     }
     
@@ -107,6 +109,10 @@ impl Car {
         else if self.get_speed() < 0.0 {
             self.set_speed(Self::FRICTION);
         }
+    }
+
+    pub fn get_sprite(&self) -> graphics::Image {
+        self.sprite.clone()
     }
 
     fn move_points(&mut self, speed: f32) {
